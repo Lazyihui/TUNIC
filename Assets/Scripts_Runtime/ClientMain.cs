@@ -10,10 +10,9 @@ namespace TUNIC {
 
         MoudelInput input;
         void Awake() {
-            Debug.Log("ClientMain Awake");
             input = new MoudelInput();
         }
-
+        float restDT = 0;
         void Update() {
             float dt = Time.deltaTime;
             Vector2 moveAxis = Vector2.zero;
@@ -21,7 +20,6 @@ namespace TUNIC {
             if (Input.GetKey(KeyCode.W)) {
                 moveAxis.y = 1;
             } else if (Input.GetKey(KeyCode.S)) {
-                Debug.Log("S");
                 moveAxis.y = -1;
             }
             if (Input.GetKey(KeyCode.A)) {
@@ -29,10 +27,30 @@ namespace TUNIC {
             } else if (Input.GetKey(KeyCode.D)) {
                 moveAxis.x = 1;
             }
-            // 左右和上下要分开写
-            moveAxis.Normalize();
-            roleEntity.transform.position += new Vector3(moveAxis.x, 0, moveAxis.y) * dt * 5;
-            Debug.Log(roleEntity.transform.position);
+            input.moveAxis = moveAxis;
+            restDT += dt;
+            float fixedDT = Time.fixedDeltaTime;
+            if (restDT >= fixedDT) {
+                while (restDT >= fixedDT) {
+
+                    FixedTick(fixedDT);
+
+                    restDT -= fixedDT;
+                }
+            } else {
+                FixedTick(restDT);
+                restDT = 0;
+            }
+
+
+        }
+
+        void FixedTick(float dt) {
+
+            roleEntity.Move(input.moveAxis, dt);
+            roleEntity.MoveFace(input.moveAxis, dt);
+
+            Physics.Simulate(dt);
         }
     }
 }
