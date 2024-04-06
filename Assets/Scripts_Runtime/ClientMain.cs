@@ -6,7 +6,7 @@ namespace TUNIC {
 
     public class ClientMain : MonoBehaviour {
 
-        [SerializeField] GameObject roleEntity;
+        [SerializeField] RoleEntity roleEntity;
 
         MoudelInput input;
         void Awake() {
