@@ -9,11 +9,26 @@ namespace TUNIC {
         [SerializeField] RoleEntity roleEntity;
 
         MoudelInput input;
+        ModuleAsstes asstes;
+
+        GameContext ctx;
+        bool isTearDown;
+
+
+
         void Awake() {
+            isTearDown = false;
             input = new MoudelInput();
+            asstes = new ModuleAsstes();
+            ctx = new GameContext();
+
+            ctx.Inject(asstes, input);
+
+            BussinessGame.Enter(ctx);
         }
         float restDT = 0;
         void Update() {
+
             float dt = Time.deltaTime;
             Vector2 moveAxis = Vector2.zero;
 
@@ -28,6 +43,8 @@ namespace TUNIC {
                 moveAxis.x = 1;
             }
             input.moveAxis = moveAxis;
+
+
             restDT += dt;
             float fixedDT = Time.fixedDeltaTime;
             if (restDT >= fixedDT) {
@@ -42,15 +59,36 @@ namespace TUNIC {
                 restDT = 0;
             }
 
+            LateTick(dt);
+
 
         }
 
         void FixedTick(float dt) {
 
-            roleEntity.Move(input.moveAxis, dt);
-            roleEntity.MoveFace(input.moveAxis, dt);
+            BussinessGame.FixedTick(ctx, dt);
 
             Physics.Simulate(dt);
         }
+
+        void LateTick(float dt) {
+            BussinessGame.LateTick(ctx, dt);
+        }
+
+
+        void OnApplicationQuit() {
+            TearDown();
+        }
+        void OnDestroy() {
+            TearDown();
+        }
+        void TearDown() {
+            if (isTearDown) {
+                return;
+            }
+            isTearDown = true;
+            asstes.UnLoad();
+        }
+
     }
 }

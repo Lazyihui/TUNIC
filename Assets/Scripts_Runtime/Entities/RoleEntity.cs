@@ -20,7 +20,8 @@ namespace TUNIC {
 
 
         public void Ctor() { }
-        //用四元数做面向 
+
+        public void Init() { }        //用四元数做面向 
         public void MoveFace(Vector2 moveAxis, float dt) {
             if (moveAxis == Vector2.zero) {
                 return;
